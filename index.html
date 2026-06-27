@@ -333,13 +333,8 @@ function setActive(key, pan=true) {
   markers[key].openPopup();
   if (pan) map.panTo([loc.lat, loc.lon]);
   document.querySelectorAll('.vet-card').forEach(c=>c.classList.toggle('selected', +c.dataset.key===key));
-  // On mobile: switch to list tab first, then scroll after transition ends
-  if (window.innerWidth <= 700) {
-    switchTab('list');
-    setTimeout(() => {
-      document.querySelector(`.vet-card[data-key="${key}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
-    }, 280);
-  } else {
+  // On desktop scroll list; on mobile stay on map (popup is enough)
+  if (window.innerWidth > 700) {
     document.querySelector(`.vet-card[data-key="${key}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
   }
 }
