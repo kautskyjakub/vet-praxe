@@ -326,8 +326,11 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   maxZoom:19
 }).addTo(map);
 
+// Assign unique _key to every entry (id alone is not unique across sheets)
+LOCS.forEach((loc, i) => { loc._key = i; });
+
 // ── State ─────────────────────────────────────
-let markers = {};          // id → L.Marker
+let markers = {};          // _key → L.Marker
 let activeId = null;
 let activeCats = new Set(Object.keys(CAT));
 let distFilter = null;     // {lat,lon,km} or null
@@ -365,25 +368,25 @@ function initMarkers() {
   LOCS.forEach(loc => {
     const m = L.marker([loc.lat, loc.lon], {icon: makeIcon(loc.kategorie)});
     m.bindPopup(popupHTML(loc), {maxWidth:280});
-    m.on('click', () => setActive(loc.id, false));
-    markers[loc.id] = m;
+    m.on('click', () => setActive(loc._key, false));
+    markers[loc._key] = m;
     m.addTo(map);
   });
 }
 
-function setActive(id, pan=true) {
-  if (activeId && markers[activeId]) {
-    const prev = LOCS.find(l=>l.id===activeId);
+function setActive(key, pan=true) {
+  if (activeId != null && markers[activeId]) {
+    const prev = LOCS.find(l=>l._key===activeId);
     if (prev) markers[activeId].setIcon(makeIcon(prev.kategorie, false));
   }
-  activeId = id;
-  const loc = LOCS.find(l=>l.id===id);
-  if (!loc || !markers[id]) return;
-  markers[id].setIcon(makeIcon(loc.kategorie, true));
-  markers[id].openPopup();
+  activeId = key;
+  const loc = LOCS.find(l=>l._key===key);
+  if (!loc || !markers[key]) return;
+  markers[key].setIcon(makeIcon(loc.kategorie, true));
+  markers[key].openPopup();
   if (pan) map.panTo([loc.lat, loc.lon]);
-  document.querySelectorAll('.vet-card').forEach(c=>c.classList.toggle('selected', c.dataset.id===id));
-  document.querySelector(`.vet-card[data-id="${id}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+  document.querySelectorAll('.vet-card').forEach(c=>c.classList.toggle('selected', +c.dataset.key===key));
+  document.querySelector(`.vet-card[data-key="${key}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
 // ── Haversine ─────────────────────────────────
@@ -431,11 +434,12 @@ function applyFilters() {
   else
     locs.sort((a,b) => (a.doktor||'').localeCompare(b.doktor||'','cs'));
 
-  // show/hide markers
+  // show/hide markers (use _key – unique per entry, id is not unique across sheets)
+  const visibleKeys = new Set(locs.map(l=>l._key));
   LOCS.forEach(loc => {
-    const show = locs.some(l=>l.id===loc.id);
-    if (show && !map.hasLayer(markers[loc.id]))  markers[loc.id].addTo(map);
-    if (!show && map.hasLayer(markers[loc.id]))  map.removeLayer(markers[loc.id]);
+    const show = visibleKeys.has(loc._key);
+    if (show && !map.hasLayer(markers[loc._key]))  markers[loc._key].addTo(map);
+    if (!show && map.hasLayer(markers[loc._key]))  map.removeLayer(markers[loc._key]);
   });
 
   renderList(locs);
@@ -462,9 +466,9 @@ function renderList(locs) {
     const mail = loc.email   && loc.email!='None'   && loc.email   ? `<a href="mailto:${loc.email}">✉️ Email</a>` : '';
     const web  = loc.web     && loc.web.startsWith('http')          ? `<a href="${loc.web}" target="_blank" rel="noopener">🌐 Web</a>` : '';
     const links = (tel||mail||web) ? `<div class="card-links">${tel}${mail}${web}</div>` : '';
-    return `<div class="vet-card${activeId===loc.id?' selected':''}" data-id="${loc.id}"
+    return `<div class="vet-card${activeId===loc._key?' selected':''}" data-key="${loc._key}"
         style="border-left-color:${cat.marker||'#9fa8da'}"
-        onclick="setActive('${loc.id}')">
+        onclick="setActive(${loc._key})">
       <div class="card-name">${loc.doktor}</div>
       ${loc.nazev && loc.nazev !== loc.doktor && loc.nazev !== 'None' ? `<div class="card-clinic">${loc.nazev}</div>` : ''}
       <div class="card-addr">📍 ${loc.adresa}</div>
