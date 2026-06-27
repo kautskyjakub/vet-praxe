@@ -125,6 +125,10 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
   display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:7px;
   padding:5px 9px;font-size:.72rem;color:#2e7d32;margin-bottom:6px
 }
+#dist-section{
+  padding:10px 12px 8px;background:#f5f7ff;
+  border-top:2px solid #c5cae9;flex-shrink:0
+}
 
 /* sort */
 #sort-row{display:flex;gap:6px;align-items:center}
@@ -225,11 +229,13 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
   }
   #main.show-list #sidebar{transform:translateX(0)}
 
-  /* controls: limited height so list-wrap gets space */
-  #controls{
-    flex-shrink:0;max-height:48%;overflow-y:auto;
-    -webkit-overflow-scrolling:touch
-  }
+  /* controls + dist-section: limited combined height so list-wrap gets space */
+  #controls, #dist-section{flex-shrink:0}
+  #sidebar > #controls, #sidebar > #dist-section{overflow-y:visible}
+  /* wrap both in a scrollable zone */
+  #sidebar{overflow:hidden}
+  #controls{overflow-y:auto;max-height:42%;-webkit-overflow-scrolling:touch}
+  #dist-section{overflow-y:auto;max-height:20%;-webkit-overflow-scrolling:touch}
 
   /* list: fills all remaining height, scrollable */
   #list-wrap{
@@ -272,6 +278,21 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
         <button class="cat-btn active" data-cat="prezyvkavci_prasata">🐄 Přežvýkavci</button>
       </div>
 
+      <div class="ctrl-label">Řazení</div>
+      <div id="sort-row">
+        <select id="sort-sel">
+          <option value="name">Abecedně (A–Z)</option>
+          <option value="dist">Vzdálenost (nejbližší)</option>
+        </select>
+      </div>
+
+      <label id="map-filter-row" title="Zobrazí v seznamu jen praxe viditelné v aktuálním výřezu mapy">
+        <input type="checkbox" id="map-filter-toggle" checked> Filtrovat dle výřezu mapy
+      </label>
+      <div id="result-count"></div>
+    </div>
+
+    <div id="dist-section">
       <div class="ctrl-label">Vzdálenost od místa</div>
       <div id="dist-row">
         <input id="dist-input" type="text" placeholder="Zadej město nebo adresu…">
@@ -285,19 +306,6 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
         <button id="clear-dist" title="Zrušit filtr vzdálenosti">✕</button>
       </div>
       <div id="dist-info"></div>
-
-      <div class="ctrl-label">Řazení</div>
-      <div id="sort-row">
-        <select id="sort-sel">
-          <option value="name">Abecedně (A–Z)</option>
-          <option value="dist">Vzdálenost (nejbližší)</option>
-        </select>
-      </div>
-
-      <label id="map-filter-row" title="Zobrazí v seznamu jen praxe viditelné v aktuálním výřezu mapy">
-        <input type="checkbox" id="map-filter-toggle"> Filtrovat dle výřezu mapy
-      </label>
-      <div id="result-count"></div>
     </div>
 
     <div id="list-wrap"></div>
@@ -352,7 +360,7 @@ let activeCats = new Set(Object.keys(CAT));
 let distFilter = null;     // {lat,lon,km} or null
 let userMarker = null;
 let distCircle = null;
-let mapFilterActive = false;
+let mapFilterActive = true;
 
 // ── Icons ─────────────────────────────────────
 function makeIcon(cat, sel=false) {
