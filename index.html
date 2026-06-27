@@ -90,53 +90,8 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
 .cat-btn:hover:not(.active){background:#e8eaf6}
 
 /* distance */
-#dist-row{display:flex;gap:6px;margin-bottom:6px}
-#dist-input{
-  flex:1;padding:6px 10px;border:1.5px solid #c5cae9;border-radius:8px;
-  font-size:.8rem;outline:none;background:#f8f9ff;min-width:0;
-  transition:border-color .15s,box-shadow .15s
-}
-#dist-input:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(63,81,181,.15)}
-#gps-btn{
-  padding:6px 9px;background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:8px;
-  cursor:pointer;font-size:.78rem;color:#2e7d32;white-space:nowrap;transition:background .15s;flex-shrink:0
-}
-#gps-btn:hover{background:#c8e6c9}
-
-#dist-km-row{display:flex;gap:6px;align-items:center;margin-bottom:6px}
-#dist-km-row label{font-size:.75rem;color:var(--muted);white-space:nowrap}
-#dist-km{
-  width:64px;padding:5px 8px;border:1.5px solid #c5cae9;border-radius:8px;
-  font-size:.8rem;text-align:center;outline:none;background:#f8f9ff;
-  transition:border-color .15s
-}
-#dist-km:focus{border-color:var(--indigo)}
-#apply-dist{
-  padding:5px 12px;background:var(--indigo);color:#fff;border:none;border-radius:8px;
-  cursor:pointer;font-size:.75rem;font-weight:700;transition:background .15s
-}
-#apply-dist:hover{background:var(--indigo-dk)}
-#clear-dist{
-  padding:5px 8px;background:#f5f5f5;border:1.5px solid #ddd;border-radius:8px;
-  cursor:pointer;font-size:.75rem;color:#666;transition:background .15s
-}
-#clear-dist:hover{background:#ebebeb}
-#dist-info{
-  display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:7px;
-  padding:5px 9px;font-size:.72rem;color:#2e7d32;margin-bottom:6px
-}
-#dist-section{
-  padding:10px 12px 8px;background:#f5f7ff;
-  border-top:2px solid #c5cae9;flex-shrink:0
-}
 
 /* sort */
-#sort-row{display:flex;gap:6px;align-items:center}
-#sort-sel{
-  flex:1;padding:6px 9px;border:1.5px solid #c5cae9;border-radius:8px;
-  font-size:.8rem;outline:none;background:#f8f9ff;transition:border-color .15s
-}
-#sort-sel:focus{border-color:var(--indigo)}
 #result-count{font-size:.7rem;color:#7986cb;margin-top:6px}
 #map-filter-row{
   display:flex;align-items:center;gap:7px;margin-top:7px;
@@ -162,7 +117,6 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
 .card-addr{font-size:.72rem;color:#555;margin-bottom:4px}
 .card-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .cat-badge{font-size:.63rem;padding:2px 7px;border-radius:8px;font-weight:700}
-.dist-badge{font-size:.71rem;color:var(--green);font-weight:700}
 .contract-badge{font-size:.63rem;color:#9e9e9e}
 .card-links{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
 .card-links a{
@@ -229,13 +183,8 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
   }
   #main.show-list #sidebar{transform:translateX(0)}
 
-  /* controls + dist-section: limited combined height so list-wrap gets space */
-  #controls, #dist-section{flex-shrink:0}
-  #sidebar > #controls, #sidebar > #dist-section{overflow-y:visible}
-  /* wrap both in a scrollable zone */
   #sidebar{overflow:hidden}
-  #controls{overflow-y:auto;max-height:42%;-webkit-overflow-scrolling:touch}
-  #dist-section{overflow-y:auto;max-height:20%;-webkit-overflow-scrolling:touch}
+  #controls{flex-shrink:0;overflow-y:auto;max-height:48%;-webkit-overflow-scrolling:touch}
 
   /* list: fills all remaining height, scrollable */
   #list-wrap{
@@ -278,35 +227,12 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
         <button class="cat-btn active" data-cat="prezyvkavci_prasata">🐄 Přežvýkavci</button>
       </div>
 
-      <div class="ctrl-label">Řazení</div>
-      <div id="sort-row">
-        <select id="sort-sel">
-          <option value="name">Abecedně (A–Z)</option>
-          <option value="dist">Vzdálenost (nejbližší)</option>
-        </select>
-      </div>
-
       <label id="map-filter-row" title="Zobrazí v seznamu jen praxe viditelné v aktuálním výřezu mapy">
         <input type="checkbox" id="map-filter-toggle" checked> Filtrovat dle výřezu mapy
       </label>
       <div id="result-count"></div>
     </div>
 
-    <div id="dist-section">
-      <div class="ctrl-label">Vzdálenost od místa</div>
-      <div id="dist-row">
-        <input id="dist-input" type="text" placeholder="Zadej město nebo adresu…">
-        <button id="gps-btn" title="Použít GPS polohu">📍 GPS</button>
-      </div>
-      <div id="dist-km-row">
-        <label for="dist-km">Max. vzdálenost:</label>
-        <input id="dist-km" type="number" min="1" max="500" value="50">
-        <span style="font-size:.78rem;color:#666">km</span>
-        <button id="apply-dist">Filtrovat</button>
-        <button id="clear-dist" title="Zrušit filtr vzdálenosti">✕</button>
-      </div>
-      <div id="dist-info"></div>
-    </div>
 
     <div id="list-wrap"></div>
   </div>
@@ -357,9 +283,6 @@ LOCS.forEach((loc, i) => { loc._key = i; });
 let markers = {};          // _key → L.Marker
 let activeId = null;
 let activeCats = new Set(Object.keys(CAT));
-let distFilter = null;     // {lat,lon,km} or null
-let userMarker = null;
-let distCircle = null;
 let mapFilterActive = true;
 
 // ── Icons ─────────────────────────────────────
@@ -413,22 +336,11 @@ function setActive(key, pan=true) {
   document.querySelector(`.vet-card[data-key="${key}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 
-// ── Haversine ─────────────────────────────────
-function dist(lat1,lon1,lat2,lon2) {
-  const R=6371, dL=(lat2-lat1)*Math.PI/180, dO=(lon2-lon1)*Math.PI/180;
-  const a=Math.sin(dL/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dO/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-function fmtDist(d) { return d < 1 ? (d*1000).toFixed(0)+' m' : d.toFixed(1)+' km'; }
-
 // ── Apply filters & render ─────────────────────
 function applyFilters() {
-  const q    = document.getElementById('search').value.toLowerCase().trim();
-  const sort = document.getElementById('sort-sel').value;
+  const q = document.getElementById('search').value.toLowerCase().trim();
 
-  let locs = LOCS.map(l => ({...l,
-    _dist: distFilter ? dist(distFilter.lat, distFilter.lon, l.lat, l.lon) : null
-  }));
+  let locs = [...LOCS];
 
   // category
   if (activeCats.size < Object.keys(CAT).length)
@@ -442,10 +354,6 @@ function applyFilters() {
     (l.id||'').toLowerCase().includes(q)
   );
 
-  // distance radius
-  if (distFilter)
-    locs = locs.filter(l => l._dist <= distFilter.km);
-
   // map bounds filter
   if (mapFilterActive) {
     const b = map.getBounds();
@@ -453,10 +361,7 @@ function applyFilters() {
   }
 
   // sort
-  if (sort==='dist' && distFilter)
-    locs.sort((a,b) => a._dist - b._dist);
-  else
-    locs.sort((a,b) => (a.doktor||'').localeCompare(b.doktor||'','cs'));
+  locs.sort((a,b) => (a.doktor||'').localeCompare(b.doktor||'','cs'));
 
   // show/hide markers (use _key – unique per entry, id is not unique across sheets)
   const visibleKeys = new Set(locs.map(l=>l._key));
@@ -484,8 +389,6 @@ function renderList(locs) {
 
   wrap.innerHTML = locs.map(loc => {
     const cat = CAT[loc.kategorie]||{};
-    const distBadge = loc._dist != null
-      ? `<span class="dist-badge">📍 ${fmtDist(loc._dist)}</span>` : '';
     const tel  = loc.telefon && loc.telefon!='None' && loc.telefon ? `<a href="tel:${loc.telefon}">📞 ${loc.telefon}</a>` : '';
     const mail = loc.email   && loc.email!='None'   && loc.email   ? `<a href="mailto:${loc.email}">✉️ Email</a>` : '';
     const web  = loc.web     && loc.web.startsWith('http')          ? `<a href="${loc.web}" target="_blank" rel="noopener">🌐 Web</a>` : '';
@@ -498,67 +401,12 @@ function renderList(locs) {
       <div class="card-addr">📍 ${loc.adresa}</div>
       <div class="card-meta">
         <span class="cat-badge" style="background:${cat.bg||'#eee'};color:${cat.color||'#333'}">${cat.label||''}</span>
-        ${distBadge}
         <span class="contract-badge">${loc.id}</span>
       </div>
       ${links}
     </div>`;
   }).join('');
 }
-
-// ── Geocode helper ────────────────────────────
-async function geocodeAddr(addr) {
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(addr)}`;
-  const r = await fetch(url, {headers:{'User-Agent':'vet-praxe-mapa/1.0'}});
-  const d = await r.json();
-  return d.length ? {lat: parseFloat(d[0].lat), lon: parseFloat(d[0].lon), label: d[0].display_name} : null;
-}
-
-function setRefPoint(lat, lon, label) {
-  distFilter = {lat, lon, km: parseFloat(document.getElementById('dist-km').value)||50};
-  document.getElementById('sort-sel').value = 'dist';
-  if (userMarker) userMarker.remove();
-  userMarker = L.marker([lat,lon], {
-    icon: L.divIcon({
-      html:`<div style="width:18px;height:18px;background:#d32f2f;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.5)"></div>`,
-      className:'', iconSize:[18,18], iconAnchor:[9,9]
-    })
-  }).addTo(map).bindPopup(`<b>Vaše místo</b><br><small>${label||''}</small>`).openPopup();
-  if (distCircle) distCircle.remove();
-  distCircle = L.circle([lat,lon], {radius:distFilter.km*1000, color:'#3f51b5', fillOpacity:.06, weight:1.5}).addTo(map);
-  map.setView([lat,lon], 9);
-  document.getElementById('dist-info').style.display = 'block';
-  document.getElementById('dist-info').textContent = `📍 Bod: ${label ? label.split(',')[0] : lat.toFixed(4)+', '+lon.toFixed(4)} · max. ${distFilter.km} km`;
-  applyFilters();
-}
-
-document.getElementById('apply-dist').addEventListener('click', async () => {
-  const val = document.getElementById('dist-input').value.trim();
-  if (!val) { alert('Zadej město nebo adresu.'); return; }
-  const res = await geocodeAddr(val);
-  if (!res) { alert('Adresu se nepodařilo najít.'); return; }
-  setRefPoint(res.lat, res.lon, val);
-});
-
-document.getElementById('dist-input').addEventListener('keydown', e => {
-  if (e.key==='Enter') document.getElementById('apply-dist').click();
-});
-
-document.getElementById('gps-btn').addEventListener('click', () => {
-  navigator.geolocation.getCurrentPosition(
-    p => setRefPoint(p.coords.latitude, p.coords.longitude, 'Vaše GPS poloha'),
-    () => alert('GPS polohu se nepodařilo zjistit.')
-  );
-});
-
-document.getElementById('clear-dist').addEventListener('click', () => {
-  distFilter = null;
-  if (userMarker) { userMarker.remove(); userMarker=null; }
-  if (distCircle) { distCircle.remove(); distCircle=null; }
-  document.getElementById('dist-info').style.display = 'none';
-  document.getElementById('dist-input').value = '';
-  applyFilters();
-});
 
 // ── Category buttons ──────────────────────────
 document.querySelectorAll('.cat-btn').forEach(btn => {
@@ -585,7 +433,6 @@ document.querySelectorAll('.cat-btn').forEach(btn => {
 });
 
 document.getElementById('search').addEventListener('input', applyFilters);
-document.getElementById('sort-sel').addEventListener('change', applyFilters);
 
 document.getElementById('map-filter-toggle').addEventListener('change', e => {
   mapFilterActive = e.target.checked;
