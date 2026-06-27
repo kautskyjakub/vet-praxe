@@ -333,7 +333,15 @@ function setActive(key, pan=true) {
   markers[key].openPopup();
   if (pan) map.panTo([loc.lat, loc.lon]);
   document.querySelectorAll('.vet-card').forEach(c=>c.classList.toggle('selected', +c.dataset.key===key));
-  document.querySelector(`.vet-card[data-key="${key}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+  // On mobile: switch to list tab first, then scroll after transition ends
+  if (window.innerWidth <= 700) {
+    switchTab('list');
+    setTimeout(() => {
+      document.querySelector(`.vet-card[data-key="${key}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+    }, 280);
+  } else {
+    document.querySelector(`.vet-card[data-key="${key}"]`)?.scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
 }
 
 // ── Apply filters & render ─────────────────────
@@ -446,7 +454,7 @@ function switchTab(tab) {
   main.classList.toggle('show-list', tab === 'list');
   document.getElementById('tab-map').classList.toggle('active', tab === 'map');
   document.getElementById('tab-list').classList.toggle('active', tab === 'list');
-  if (tab === 'map') map.invalidateSize();
+  if (tab === 'map') setTimeout(() => map.invalidateSize(), 260);
   showHeader();
 }
 
