@@ -450,6 +450,11 @@ function switchTab(tab) {
   document.getElementById('tab-map').classList.toggle('active', tab === 'map');
   document.getElementById('tab-list').classList.toggle('active', tab === 'list');
   if (tab === 'map') setTimeout(() => map.invalidateSize(), 260);
+  if (tab === 'list' && activeId != null) {
+    setTimeout(() => {
+      document.querySelector(`.vet-card[data-key="${activeId}"]`)?.scrollIntoView({block:'center', behavior:'smooth'});
+    }, 280);
+  }
   showHeader();
 }
 
