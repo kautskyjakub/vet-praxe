@@ -44,11 +44,17 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
 }
 
 @media(max-width:700px){
-  #header{padding:6px 12px}
+  #header{
+    padding:6px 12px;
+    position:fixed;top:0;left:0;right:0;z-index:100
+  }
   #header-icon{font-size:1.2rem}
   #header-text h1{font-size:.85rem}
   #header-text p{display:none}
   #header-count{font-size:.7rem;padding:3px 9px}
+  /* push content below fixed header; JS removes this class when header hides */
+  #app{padding-top:var(--mob-header-h, 44px)}
+  #app.header-hidden{padding-top:0}
 }
 
 /* ── SIDEBAR ─────────────────────────────────── */
@@ -595,13 +601,27 @@ function showHeader() {
   if (window.innerWidth > 700) return;
   const h = document.getElementById('header');
   h.classList.remove('hidden');
+  document.getElementById('app').classList.remove('header-hidden');
   clearTimeout(_headerTimer);
-  _headerTimer = setTimeout(() => h.classList.add('hidden'), 4000);
+  _headerTimer = setTimeout(hideHeader, 4000);
+}
+function hideHeader() {
+  const h = document.getElementById('header');
+  h.classList.add('hidden');
+  // after transition ends, collapse the space
+  h.addEventListener('transitionend', () => {
+    if (h.classList.contains('hidden'))
+      document.getElementById('app').classList.add('header-hidden');
+  }, {once: true});
 }
 function initHeaderAutoHide() {
   if (window.innerWidth > 700) return;
-  document.getElementById('header').addEventListener('click', showHeader);
-  _headerTimer = setTimeout(() => document.getElementById('header').classList.add('hidden'), 4000);
+  // set exact header height as CSS var so padding matches
+  const h = document.getElementById('header');
+  const setH = () => document.getElementById('app').style.setProperty('--mob-header-h', h.offsetHeight + 'px');
+  setH();
+  h.addEventListener('click', showHeader);
+  _headerTimer = setTimeout(hideHeader, 4000);
 }
 
 // ── Boot ──────────────────────────────────────
