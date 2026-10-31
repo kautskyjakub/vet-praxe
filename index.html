@@ -129,6 +129,32 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
 /* ── MAP ─────────────────────────────────────── */
 #map{flex:1;z-index:0}
 
+/* ── BASEMAP SWITCHER ────────────────────────── */
+#basemap-switcher{
+  position:absolute;top:10px;right:10px;z-index:1000;
+  background:#fff;border-radius:10px;
+  box-shadow:0 2px 8px rgba(0,0,0,.22);
+  overflow:hidden;border:1px solid #dde
+}
+#basemap-switcher button{
+  display:block;width:100%;padding:7px 14px;
+  font-size:.78rem;font-family:inherit;font-weight:500;
+  border:none;background:none;cursor:pointer;
+  text-align:left;color:#444;transition:background .15s
+}
+#basemap-switcher button:not(:last-child){border-bottom:1px solid #eef}
+#basemap-switcher button:hover{background:#f0f2ff}
+#basemap-switcher button.active{background:#e8eaf6;color:var(--indigo);font-weight:700}
+#basemap-toggle{
+  position:absolute;top:10px;right:10px;z-index:1001;
+  background:#fff;border:1px solid #dde;border-radius:8px;
+  box-shadow:0 2px 8px rgba(0,0,0,.22);
+  padding:6px 11px;font-size:.78rem;font-family:inherit;
+  cursor:pointer;color:#444;font-weight:500;
+  display:flex;align-items:center;gap:5px;transition:background .15s
+}
+#basemap-toggle:hover{background:#f0f2ff}
+
 /* ── POPUP ───────────────────────────────────── */
 .leaflet-popup-content{min-width:200px;max-width:260px}
 .pu-name{font-weight:700;font-size:.9rem;color:var(--indigo-dk);margin-bottom:3px}
@@ -238,7 +264,10 @@ html,body{height:100%;font-family:'Segoe UI',system-ui,sans-serif;color:var(--te
   </div>
 
   <!-- MAP -->
-  <div id="map"></div>
+  <div id="map">
+    <button id="basemap-toggle" onclick="toggleBasemapMenu()" title="Podkladová mapa">🗺️ Mapa</button>
+    <div id="basemap-switcher" style="display:none"></div>
+  </div>
 </div>
 
 <!-- MOBILE TAB BAR -->
@@ -2840,10 +2869,100 @@ const CAT = {
 
 // ── Map init ──────────────────────────────────
 const map = L.map('map', {zoomControl:true}).setView([49.8, 15.5], 7);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-  maxZoom:19
-}).addTo(map);
+
+const BASEMAPS = [
+  {
+    id: 'osm',
+    label: '🗺️ OpenStreetMap',
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '© <a href="https://openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19
+  },
+  {
+    id: 'topo',
+    label: '🏔️ Terén (OpenTopo)',
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution: '© <a href="https://opentopomap.org">OpenTopoMap</a>',
+    maxZoom: 17
+  },
+  {
+    id: 'satellite',
+    label: '🛰️ Satelit (Esri)',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri, Maxar, Earthstar Geographics',
+    maxZoom: 19
+  },
+  {
+    id: 'carto',
+    label: '⬜ Světlá (CartoDB)',
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    attribution: '© <a href="https://carto.com">CARTO</a>',
+    maxZoom: 19,
+    subdomains: 'abcd'
+  },
+  {
+    id: 'dark',
+    label: '⬛ Tmavá (CartoDB)',
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attribution: '© <a href="https://carto.com">CARTO</a>',
+    maxZoom: 19,
+    subdomains: 'abcd'
+  }
+];
+
+let activeBasemap = 'osm';
+let tileLayer = null;
+
+function setBasemap(id) {
+  const bm = BASEMAPS.find(b => b.id === id);
+  if (!bm) return;
+  if (tileLayer) map.removeLayer(tileLayer);
+  tileLayer = L.tileLayer(bm.url, {
+    attribution: bm.attribution,
+    maxZoom: bm.maxZoom,
+    subdomains: bm.subdomains || 'abc'
+  }).addTo(map);
+  tileLayer.bringToBack();
+  activeBasemap = id;
+  document.getElementById('basemap-toggle').innerHTML = bm.label;
+  renderBasemapMenu();
+}
+
+function renderBasemapMenu() {
+  const menu = document.getElementById('basemap-switcher');
+  menu.innerHTML = BASEMAPS.map(bm =>
+    `<button class="${bm.id === activeBasemap ? 'active' : ''}" onclick="selectBasemap('${bm.id}')">${bm.label}</button>`
+  ).join('');
+}
+
+function toggleBasemapMenu() {
+  const menu = document.getElementById('basemap-switcher');
+  const btn = document.getElementById('basemap-toggle');
+  const open = menu.style.display !== 'none';
+  menu.style.display = open ? 'none' : 'block';
+  // Position menu above/below the toggle button
+  if (!open) {
+    const btnRect = btn.getBoundingClientRect();
+    const mapRect = btn.closest('#map').getBoundingClientRect();
+    menu.style.top = (btnRect.bottom - mapRect.top + 6) + 'px';
+    menu.style.right = '10px';
+    menu.style.left = 'auto';
+    renderBasemapMenu();
+  }
+}
+
+function selectBasemap(id) {
+  setBasemap(id);
+  document.getElementById('basemap-switcher').style.display = 'none';
+}
+
+// Close menu when clicking on map
+map.on('click', () => {
+  document.getElementById('basemap-switcher').style.display = 'none';
+});
+
+// Initialize default basemap
+setBasemap('osm');
 
 // Assign unique _key to every entry (id alone is not unique across sheets)
 LOCS.forEach((loc, i) => { loc._key = i; });
